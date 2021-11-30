@@ -1,3 +1,7 @@
+/**
+ * Resolution by: Arimario Jesus
+ */
+
 import { useState } from 'react'
 
 import '../styles/tasklist.scss'
