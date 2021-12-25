@@ -3,7 +3,7 @@
  */
 
 
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { api } from '../services/api';
 
 interface GenreResponseProps {
@@ -40,20 +40,34 @@ export const MoviesAndGenresProvider = ({ children }: { children?: ReactNode }) 
   const [genres, setGenres] = useState<GenreResponseProps[]>([]);
   const [movies, setMovies] = useState<MovieProps[]>([]);
 
-  useEffect(() => {
+  const fetchGenres = useCallback(() => {
     api.get<GenreResponseProps[]>('genres').then(response => {
       setGenres(response.data);
     });
   }, []);
 
-  useEffect(() => {
-    api.get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId}`).then(response => {
-      setMovies(response.data);
-    });
+  const fetchMoviesByGenre = useCallback(async () => {
+    const { data } = await api.get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId}`);
+    return data;
+  }, [selectedGenreId]);
 
-    api.get<GenreResponseProps>(`genres/${selectedGenreId}`).then(response => {
-      setSelectedGenre(response.data);
-    })
+  const fetchGenre = useCallback(async () => {
+    const { data } = await api.get<GenreResponseProps>(`genres/${selectedGenreId}`);
+    return data;
+  }, [selectedGenreId]);
+
+  useEffect(() => {
+    fetchGenres();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const newMovies = await fetchMoviesByGenre();
+      setMovies(newMovies);
+
+      const newGenre = await fetchGenre();
+      setSelectedGenre(newGenre);
+    })();
   }, [selectedGenreId]);
 
   const setGenre = (id: number) => {

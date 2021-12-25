@@ -5,6 +5,7 @@ import './styles/global.scss';
 
 import './styles/sidebar.scss';
 import './styles/content.scss';
+
 import { MoviesAndGenresProvider } from './hooks/useMoviesAndGenres';
 
 export function App() {
